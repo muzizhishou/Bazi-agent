@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>印章测试</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: system-ui, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h2 {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .seal-wrapper {
+      text-align: center;
+    }
+    .seal-box {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 10px;
+    }
+    .label {
+      font-size: 14px;
+      color: #666;
+    }
+    .dark-bg {
+      background: #1a1a1a;
+      padding: 40px;
+      border-radius: 8px;
+    }
+    .light-bg {
+      background: #f5f5f5;
+      padding: 40px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>印章渲染测试</h1>
+
+    <h2>深色背景（用浅色印章）</h2>
+    <div class="dark-bg">
+      <div class="grid" id="dark-seals"></div>
+    </div>
+
+    <h2>浅色背景（用深色印章）</h2>
+    <div class="light-bg">
+      <div class="grid" id="light-seals"></div>
+    </div>
+  </div>
+
+  <script>
+    const S = 'fill:none;stroke:color-mix(in srgb,var(--paper) 45%,var(--seal));stroke-width:.9';
+
+    const tile = (w, h, d) =>
+      `<pattern id="tx" width="${w}" height="${h}" patternUnits="userSpaceOnUse"><path d="${d}" style="${S}"/></pattern><rect width="100" height="100" fill="url(#tx)"/>`;
+
+    const TEX = {
+      金: () => tile(14, 14, "M0 7L7 0L14 7L7 14Z"),
+      木: () => [8, 15, 22, 29, 36, 43, 50, 58, 66].map(r => `<circle cx="50" cy="50" r="${r}" style="${S}"/>`).join(""),
+      水: () => tile(20, 9, "M0 4.5Q5 0 10 4.5T20 4.5"),
+      火: () => tile(14, 18, "M7 17C3 12 5 8 7 2C9 8 11 12 7 17Z"),
+      土: () => tile(20, 8, "M0 2H13M7 6H20")
+    };
+
+    const POS = [[71, 29], [71, 71], [29, 29], [29, 71]];
+
+    function sealSVG(text, el, isDark) {
+      const colors = {
+        金: { dark: '#cfd3d6', light: '#3a4046' },
+        木: { dark: '#a9c9b3', light: '#2e5140' },
+        水: { dark: '#a8c4e0', light: '#2a4a70' },
+        火: { dark: '#e2a08c', light: '#8b3a2b' },
+        土: { dark: '#d9bf8a', light: '#75582f' }
+      };
+
+      const sealColor = isDark ? colors[el].dark : colors[el].light;
+      const paperColor = isDark ? '#1a1a1a' : '#f5f5f5';
+
+      const g = [...text].map((c, i) => `<text x="${POS[i][0]}" y="${POS[i][1]}">${c}</text>`).join("");
+
+      return `<svg viewBox="0 0 100 100" width="100%" height="100%" style="--seal:${sealColor};--paper:${paperColor}">
+        <defs>
+          <mask id="cut-${el}-${isDark}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+            <rect width="100" height="100" fill="#fff"/>
+            <rect x="6" y="6" width="88" height="88" rx="1.5" fill="none" stroke="#000" stroke-width="1.4"/>
+            <g fill="#000" font-size="36" font-weight="900" text-anchor="middle" dominant-baseline="central" style="font-family:'Noto Serif SC',serif">
+              ${g}
+            </g>
+          </mask>
+          <clipPath id="cp-${el}-${isDark}">
+            <rect width="100" height="100" rx="3"/>
+          </clipPath>
+        </defs>
+        <g mask="url(#cut-${el}-${isDark})" clip-path="url(#cp-${el}-${isDark})">
+          <rect width="100" height="100" style="fill:var(--seal)"/>
+          ${TEX[el]()}
+        </g>
+      </svg>`;
+    }
+
+    const elements = ['金', '木', '水', '火', '土'];
+    const texts = {
+      '金': '掌心藏玉',
+      '木': '拔地苍木',
+      '水': '檐下细雨',
+      '火': '赤霄烈阳',
+      '土': '掌心藏玉'
+    };
+
+    // 渲染深色背景印章
+    const darkContainer = document.getElementById('dark-seals');
+    elements.forEach(el => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'seal-wrapper';
+      wrapper.innerHTML = `
+        <div class="seal-box">${sealSVG(texts[el], el, true)}</div>
+        <div class="label">${el} - 浅色</div>
+      `;
+      darkContainer.appendChild(wrapper);
+    });
+
+    // 渲染浅色背景印章
+    const lightContainer = document.getElementById('light-seals');
+    elements.forEach(el => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'seal-wrapper';
+      wrapper.innerHTML = `
+        <div class="seal-box">${sealSVG(texts[el], el, false)}</div>
+        <div class="label">${el} - 深色</div>
+      `;
+      lightContainer.appendChild(wrapper);
+    });
+  </script>
+</body>
+</html>

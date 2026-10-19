@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>八字人格档案</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* 默认金 */
+      --bg: #14171a;
+      --panel: #1b1f23;
+      --accent: #c9d1d6;
+      --text: #e8ecef;
+    }
+
+    :root[data-element="金"] {
+      --bg: #14171a;
+      --panel: #1b1f23;
+      --accent: #e3d3a2;
+      --text: #e8ecef;
+    }
+
+    :root[data-element="木"] {
+      --bg: #0f1a15;
+      --panel: #15231c;
+      --accent: #6fbf8f;
+      --text: #e6efe9;
+    }
+
+    :root[data-element="水"] {
+      --bg: #0e1722;
+      --panel: #142030;
+      --accent: #5aa0e0;
+      --text: #e6edf5;
+    }
+
+    :root[data-element="火"] {
+      --bg: #1c1110;
+      --panel: #271817;
+      --accent: #ff4d5a;
+      --text: #f5e9e6;
+    }
+
+    :root[data-element="土"] {
+      --bg: #1a150e;
+      --panel: #251e14;
+      --accent: #c9733a;
+      --text: #f3ece0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      transition: background 400ms;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* 顶栏 */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 0ms forwards;
+    }
+
+    .top-bar-left {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      opacity: 0.6;
+    }
+
+    .top-bar-right {
+      color: var(--accent);
+      letter-spacing: 0.15em;
+    }
+
+    /* 主视觉区 */
+    .hero {
+      position: relative;
+      padding: 60px 0 40px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 称号区 */
+    .title-section {
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 80ms forwards;
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      margin-bottom: 16px;
+    }
+
+    .title-base {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 900;
+      font-size: clamp(44px, 12vw, 68px);
+      line-height: 1.2;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .title-separator {
+      display: inline-block;
+      margin: 0 16px;
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 400;
+      opacity: 0.4;
+    }
+
+    .title-mod-wrapper {
+      display: inline;
+    }
+
+    .title-mod-line {
+      display: none;
+    }
+
+    .title-mod-symbol {
+      display: inline;
+      font-family: "Noto Serif SC", serif;
+      font-size: inherit;
+      color: var(--text);
+      opacity: 0.4;
+      transition: color 400ms;
+      margin: 0 16px;
+    }
+
+    .title-mod {
+      display: inline;
+      font-family: "Noto Serif SC", serif;
+      font-weight: 900;
+      font-size: clamp(44px, 12vw, 68px);
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .tagline {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .tagline-line {
+      width: 3px;
+      height: 48px;
+      background: var(--accent);
+      flex-shrink: 0;
+      transition: background 400ms;
+    }
+
+    .tagline-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      opacity: 0.85;
+      padding-top: 2px;
+    }
+
+    /* 五行分布图区域 */
+    .element-chart-section {
+      margin-top: 48px;
+      background: var(--panel);
+      padding: 32px;
+      position: relative;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 240ms forwards;
+      transition: background 400ms;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .chart-label {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      transition: color 400ms;
+    }
+
+    .chart-title-cn {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      opacity: 0.5;
+      writing-mode: vertical-rl;
+      letter-spacing: 0.3em;
+    }
+
+    .element-chart {
+      display: flex;
+      justify-content: center;
+      margin: 32px 0;
+    }
+
+    .element-chart svg {
+      width: 280px;
+      height: 280px;
+    }
+
+    .chart-summary {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .chart-dominant {
+      font-family: "Noto Serif SC", serif;
+      font-size: 16px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .chart-dominant .element-symbol {
+      color: var(--accent);
+      font-weight: 700;
+      transition: color 400ms;
+    }
+
+    .chart-stats {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      opacity: 0.5;
+      letter-spacing: 0.1em;
+    }
+
+    .chart-dominant-split {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .chart-dominant-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--text);
+      opacity: 0.2;
+    }
+
+    /* Profile 和 Traits 区块 */
+    .section-panel {
+      background: var(--panel);
+      padding: 32px;
+      margin-top: 28px;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+      transition: background 400ms;
+    }
+
+    .section-panel.profile {
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 400ms forwards;
+    }
+
+    .section-panel.traits {
+      margin-top: 12px;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 480ms forwards;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--text);
+      opacity: 0.1;
+    }
+
+    .section-label-main {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      transition: color 400ms;
+    }
+
+    .section-label-cn {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      opacity: 0.5;
+      writing-mode: vertical-rl;
+      letter-spacing: 0.3em;
+    }
+
+    /* Profile 内容 */
+    .profile-lead {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .profile-body {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 15px;
+      line-height: 1.95;
+      color: var(--text);
+      opacity: 0.88;
+      text-align: left;
+    }
+
+    /* Traits 网格 */
+    .traits-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .trait-item {
+      background: color-mix(in srgb, var(--panel) 96%, var(--text) 4%);
+      padding: 12px 14px;
+      min-height: 72px;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+      transition: background 400ms;
+    }
+
+    .trait-item.span-two {
+      grid-column: span 2;
+    }
+
+    .trait-number {
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--accent);
+      margin-bottom: 6px;
+      transition: color 400ms;
+    }
+
+    .trait-text {
+      font-family: "Noto Sans SC", sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    @media (max-width: 340px) {
+      .traits-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trait-item.span-two {
+        grid-column: span 1;
+      }
+    }
+
+    /* 四柱数据栏 */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 48px;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 160ms forwards;
+    }
+
+    .pillar {
+      background: var(--panel);
+      padding: 20px 12px;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition: background 400ms;
+    }
+
+    .pillar.highlight {
+      background: var(--accent);
+      transition: background 400ms;
+    }
+
+    .pillar-label {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 11px;
+      opacity: 0.6;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .pillar.highlight .pillar-label {
+      color: var(--bg);
+      opacity: 0.8;
+    }
+
+    .pillar-label-en {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .pillar.highlight .pillar-label-en {
+      color: var(--bg);
+      opacity: 0.6;
+    }
+
+    .pillar-chars {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pillar-char {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .pillar.highlight .pillar-char {
+      color: var(--bg);
+    }
+
+    /* 开发切换条 */
+    .dev-switcher {
+      display: none;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      gap: 12px;
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      z-index: 100;
+    }
+
+    .dev-switcher.visible {
+      display: flex;
+    }
+
+    .dev-switcher button {
+      background: none;
+      border: none;
+      color: var(--text);
+      opacity: 0.3;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: inherit;
+      transition: opacity 200ms;
+    }
+
+    .dev-switcher button:hover {
+      opacity: 0.6;
+    }
+
+    .dev-switcher button.active {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    /* 动效 */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 480px) {
+      .hero-content {
+        flex-direction: column;
+      }
+
+      .badge {
+        order: -1;
+      }
+
+      .pillars {
+        gap: 8px;
+      }
+
+      .pillar {
+        padding: 16px 8px;
+      }
+
+      .pillar-char {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 开发切换条 -->
+  <div class="dev-switcher" id="devSwitcher">
+    <button data-element="金">金</button>
+    <button data-element="木">木</button>
+    <button data-element="水">水</button>
+    <button data-element="火">火</button>
+    <button data-element="土">土</button>
+  </div>
+
+  <!-- 顶栏 -->
+  <div class="top-bar">
+    <div class="top-bar-left">八字人格档案</div>
+    <div class="top-bar-right" id="topBarNumber">NO. 2006·07·21·07</div>
+  </div>
+
+  <!-- 主视觉区 -->
+  <div class="container">
+    <div class="hero">
+      <div class="hero-content">
+        <!-- 称号区 -->
+        <div class="title-section">
+          <div class="section-label">ARCHETYPE · 人格原型</div>
+          <div>
+            <span class="title-base" id="titleBase">掌心藏玉</span>
+            <span class="title-mod-symbol">×</span>
+            <span class="title-mod" id="titleMod">游川拾贝人</span>
+          </div>
+          <div class="tagline">
+            <div class="tagline-line"></div>
+            <div class="tagline-text" id="tagline">看着温和，其实心里有把尺</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 五行分布图 -->
+    <div class="element-chart-section">
+      <div class="chart-header">
+        <div class="chart-label">02 / ELEMENTS</div>
+        <div class="chart-title-cn">五行分布</div>
+      </div>
+      <div class="element-chart">
+        <svg id="elementChart" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <!-- 图表内容由JS生成 -->
+        </svg>
+      </div>
+      <div class="chart-summary">
+        <div class="chart-dominant">
+          日主 <span class="element-symbol" id="dominantElement">金·土</span>势最盛
+        </div>
+        <div class="chart-stats" id="chartStats">土 3 · 水 2 · 木 1 · 火 1 · 金 1</div>
+      </div>
+    </div>
+
+    <!-- 四柱数据栏 -->
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-label">年柱</div>
+        <div class="pillar-label-en">YEAR</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="yearStem">丙</div>
+          <div class="pillar-char" id="yearBranch">戌</div>
+        </div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-label">月柱</div>
+        <div class="pillar-label-en">MONTH</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="monthStem">乙</div>
+          <div class="pillar-char" id="monthBranch">未</div>
+        </div>
+      </div>
+
+      <div class="pillar highlight">
+        <div class="pillar-label">日柱</div>
+        <div class="pillar-label-en">DAY</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="dayStem">辛</div>
+          <div class="pillar-char" id="dayBranch">亥</div>
+        </div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-label">时柱</div>
+        <div class="pillar-label-en">HOUR</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="hourStem">壬</div>
+          <div class="pillar-char" id="hourBranch">辰</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 / PROFILE 人格侧写 -->
+    <div class="section-panel profile">
+      <div class="section-header">
+        <div class="section-label-main">03 / PROFILE</div>
+        <div class="section-label-cn">人格侧写</div>
+      </div>
+      <div id="profileContent"></div>
+    </div>
+
+    <!-- 04 / TRAITS 核心特质 -->
+    <div class="section-panel traits">
+      <div class="section-header">
+        <div class="section-label-main">04 / TRAITS</div>
+        <div class="section-label-cn">核心特质</div>
+      </div>
+      <div class="traits-grid" id="traitsGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    // 文本清洗函数
+    function normalizeText(str) {
+      return str
+        // 汉字后的半角逗号、分号、冒号、问号、感叹号替换为全角
+        .replace(/([一-龥]),/g, '$1，')
+        .replace(/([一-龥]);/g, '$1；')
+        .replace(/([一-龥]):/g, '$1：')
+        .replace(/([一-龥])\?/g, '$1？')
+        .replace(/([一-龥])!/g, '$1！')
+        // 成对的半角双引号替换为中文双引号
+        .replace(/"([^"]*)"/g, '"$1"');
+    }
+
+    // 测试用例
+    // console.log(normalizeText('话不多,但准')); // 话不多，但准
+    // console.log(normalizeText('问题:为什么?')); // 问题：为什么？
+    // console.log(normalizeText('他说"你好"')); // 他说"你好"
+
+    // 天干地支对应五行
+    const stemElements = {
+      '甲': '木', '乙': '木',
+      '丙': '火', '丁': '火',
+      '戊': '土', '己': '土',
+      '庚': '金', '辛': '金',
+      '壬': '水', '癸': '水'
+    };
+
+    const branchElements = {
+      '子': '水',
+      '丑': '土', '寅': '木', '卯': '木',
+      '辰': '土', '巳': '火', '午': '火',
+      '未': '土', '申': '金', '酉': '金',
+      '戌': '土', '亥': '水'
+    };
+
+    // 计算四柱的五行分布
+    function calculateElementDistribution(data) {
+      const count = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 };
+
+      // 统计八个字
+      const pillars = [data.year_pillar, data.month_pillar, data.day_pillar, data.hour_pillar];
+      pillars.forEach(pillar => {
+        const stem = pillar[0];
+        const branch = pillar[1];
+        count[stemElements[stem]]++;
+        count[branchElements[branch]]++;
+      });
+
+      return count;
+    }
+
+    // 绘制五行分布图
+    function drawElementChart(count, accentColor, dayStemElement) {
+      const svg = document.getElementById('elementChart');
+      svg.innerHTML = '';
+
+      const cx = 140;
+      const cy = 140;
+      const maxRadius = 90;
+      const gridLevels = 3;
+
+      // 五行顺序：木→火→土→金→水（相生顺序，顺时针）
+      const elements = ['木', '火', '土', '金', '水'];
+      const angleOffset = -Math.PI / 2; // 木在正上方
+      const angleStep = (Math.PI * 2) / 5;
+
+      // 计算每个元素的顶点位置
+      function getPoint(element, radius) {
+        const index = elements.indexOf(element);
+        const angle = angleOffset + index * angleStep;
+        return {
+          x: cx + Math.cos(angle) * radius,
+          y: cy + Math.sin(angle) * radius
+        };
+      }
+
+      // 绘制网格（3层同心五边形）
+      const gridGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      for (let i = 1; i <= gridLevels; i++) {
+        const radius = (maxRadius / gridLevels) * i;
+        const points = elements.map(el => {
+          const p = getPoint(el, radius);
+          return `${p.x},${p.y}`;
+        }).join(' ');
+
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', points);
+        polygon.setAttribute('fill', 'none');
+        polygon.setAttribute('stroke', accentColor);
+        polygon.setAttribute('stroke-width', '1');
+        polygon.setAttribute('opacity', '0.15');
+        gridGroup.appendChild(polygon);
+      }
+      svg.appendChild(gridGroup);
+
+      // 绘制从中心到顶点的连线
+      const linesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      elements.forEach(el => {
+        const p = getPoint(el, maxRadius);
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', cx);
+        line.setAttribute('y1', cy);
+        line.setAttribute('x2', p.x);
+        line.setAttribute('y2', p.y);
+        line.setAttribute('stroke', accentColor);
+        line.setAttribute('stroke-width', '1');
+        line.setAttribute('opacity', '0.15');
+        linesGroup.appendChild(line);
+      });
+      svg.appendChild(linesGroup);
+
+      // 计算数据多边形的顶点
+      const dataPoints = elements.map(el => {
+        const ratio = Math.max(count[el] / 8, 0.15);
+        const radius = ratio * maxRadius;
+        return getPoint(el, radius);
+      });
+
+      // 绘制数据多边形
+      const dataPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      dataPolygon.setAttribute('points', dataPoints.map(p => `${p.x},${p.y}`).join(' '));
+      dataPolygon.setAttribute('fill', accentColor);
+      dataPolygon.setAttribute('fill-opacity', '0.25');
+      dataPolygon.setAttribute('stroke', accentColor);
+      dataPolygon.setAttribute('stroke-width', '2');
+      svg.appendChild(dataPolygon);
+
+      // 绘制顶点圆点
+      const pointsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      dataPoints.forEach(p => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', accentColor);
+        pointsGroup.appendChild(circle);
+      });
+      svg.appendChild(pointsGroup);
+
+      // 找出次数最多的元素
+      const maxCount = Math.max(...Object.values(count));
+
+      // 绘制标签（圆圈+元素+数字）
+      const labelsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      elements.forEach((el, index) => {
+        const labelPoint = getPoint(el, maxRadius + 35);
+        const isMax = count[el] === maxCount;
+
+        // 圆圈背景
+        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        bgCircle.setAttribute('cx', labelPoint.x);
+        bgCircle.setAttribute('cy', labelPoint.y);
+        bgCircle.setAttribute('r', '18');
+        bgCircle.setAttribute('fill', 'none');
+        bgCircle.setAttribute('stroke', accentColor);
+        bgCircle.setAttribute('stroke-width', isMax ? '2' : '1');
+        bgCircle.setAttribute('opacity', isMax ? '0.8' : '0.3');
+        if (isMax) {
+          bgCircle.setAttribute('stroke-dasharray', '2,2');
+        }
+        labelsGroup.appendChild(bgCircle);
+
+        // 元素文字
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', labelPoint.x);
+        text.setAttribute('y', labelPoint.y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('font-family', 'Noto Serif SC, serif');
+        text.setAttribute('font-size', '14');
+        text.setAttribute('fill', isMax ? accentColor : 'currentColor');
+        text.setAttribute('opacity', isMax ? '1' : '0.6');
+        text.setAttribute('font-weight', isMax ? '700' : '400');
+        text.textContent = el;
+        labelsGroup.appendChild(text);
+
+        // 数字标签（在圆圈上方）
+        const countLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        countLabel.setAttribute('x', labelPoint.x);
+        countLabel.setAttribute('y', labelPoint.y - 28);
+        countLabel.setAttribute('text-anchor', 'middle');
+        countLabel.setAttribute('font-family', 'Barlow Condensed, sans-serif');
+        countLabel.setAttribute('font-size', '13');
+        countLabel.setAttribute('fill', 'currentColor');
+        countLabel.setAttribute('opacity', '0.5');
+        countLabel.textContent = count[el];
+        labelsGroup.appendChild(countLabel);
+      });
+      svg.appendChild(labelsGroup);
+
+      // 更新统计信息
+      updateChartStats(count, dayStemElement);
+    }
+
+    // 更新图表统计信息
+    function updateChartStats(count, dayStemElement) {
+      // 找出最多的元素
+      const maxCount = Math.max(...Object.values(count));
+      const dominantElements = Object.entries(count)
+        .filter(([_, c]) => c === maxCount)
+        .map(([el, _]) => el);
+
+      // 更新日主显示（拆分为两段）
+      const dominantElement = dominantElements[0];
+      const isDayStemDominant = dominantElements.length === 1 && dominantElement === dayStemElement;
+
+      const chartDominant = document.querySelector('.chart-dominant');
+      chartDominant.innerHTML = '';
+
+      const leftSpan = document.createElement('span');
+      leftSpan.textContent = `日主 ${dayStemElement}`;
+      leftSpan.querySelector = function() { return null; }; // 避免查询错误
+
+      const divider = document.createElement('div');
+      divider.className = 'chart-dominant-divider';
+
+      const rightSpan = document.createElement('span');
+      rightSpan.textContent = isDayStemDominant ? '日主自旺' : `${dominantElement}势最盛`;
+
+      const container = document.createElement('div');
+      container.className = 'chart-dominant-split';
+      container.appendChild(leftSpan);
+      container.appendChild(divider);
+      container.appendChild(rightSpan);
+
+      chartDominant.appendChild(container);
+
+      // 更新统计行（按数量降序）
+      const sorted = Object.entries(count)
+        .sort((a, b) => b[1] - a[1])
+        .map(([el, c]) => `${el} ${c}`)
+        .join(' · ');
+      document.getElementById('chartStats').textContent = sorted;
+    }
+
+    // 渲染Profile区块
+    function renderProfile(summary) {
+      const cleanText = normalizeText(summary);
+      const sentences = cleanText.split('。').filter(s => s.trim());
+
+      const container = document.getElementById('profileContent');
+      container.innerHTML = '';
+
+      if (sentences.length === 0) return;
+
+      // 第一句作为引导句
+      const lead = document.createElement('div');
+      lead.className = 'profile-lead';
+      lead.textContent = sentences[0] + '。';
+      container.appendChild(lead);
+
+      // 其余句子作为正文
+      if (sentences.length > 1) {
+        const body = document.createElement('div');
+        body.className = 'profile-body';
+        body.textContent = sentences.slice(1).join('。') + '。';
+        container.appendChild(body);
+      }
+    }
+
+    // 渲染Traits区块
+    function renderTraits(traits) {
+      const grid = document.getElementById('traitsGrid');
+      grid.innerHTML = '';
+
+      traits.forEach((trait, index) => {
+        const item = document.createElement('div');
+        item.className = 'trait-item';
+
+        // 如果是奇数个且是最后一个，横跨两列
+        if (traits.length % 2 === 1 && index === traits.length - 1) {
+          item.classList.add('span-two');
+        }
+
+        const number = document.createElement('div');
+        number.className = 'trait-number';
+        number.textContent = String(index + 1).padStart(2, '0');
+
+        const text = document.createElement('div');
+        text.className = 'trait-text';
+        text.textContent = normalizeText(trait);
+
+        item.appendChild(number);
+        item.appendChild(text);
+        grid.appendChild(item);
+      });
+    }
+
+    // Mock 数据 - 调整为不同形状
+    const mockData = {
+      "金": {
+        "year_pillar": "丙戌",
+        "month_pillar": "乙未",
+        "day_pillar": "辛亥",
+        "hour_pillar": "壬辰",
+        "archetype_title": "掌心藏玉 × 游川拾贝人",
+        "shareable_tagline": "表面温润,内里有一片不肯结冰的海",
+        "personality_summary": "第一眼是干净、有分寸的人,话说得不多,但每句都落在点上。你对细节敏感,东西摆歪一点都会察觉,别人情绪的细微变化也逃不过你。但你其实不是安静的人。你心里有一条一直在流动的河,想去更远的地方,想试没试过的事。只是你习惯先观望,先确认安全,再决定要不要下水。所以很多人只看到你稳,没看到你野。你的矛盾在这儿:想被理解,又不轻易让人靠近。",
+        "traits": [
+          "对细节的敏感度超出常人",
+          "看起来安静,其实好奇心很重",
+          "不喜欢被安排,讨厌被催",
+          "表达有分寸,话不多但准",
+          "想要自由,又需要一点确定感",
+          "情绪自己消化,很少麻烦别人"
+        ],
+        "day_stem_element": "金"
+      },
+      "木": {
+        "year_pillar": "甲寅",
+        "month_pillar": "丙寅",
+        "day_pillar": "乙卯",
+        "hour_pillar": "戊寅",
+        "archetype_title": "拔地苍木 × 扎竹守则者",
+        "shareable_tagline": "规矩之内,才觉得安全",
+        "personality_summary": "你是那种需要规则才能放松的人。不是说你死板,而是你需要知道边界在哪儿,才敢放开手脚。你对正确的事特别执着,看不惯马虎和敷衍,自己做事也是这样,宁可慢一点,也要做对。别人可能觉得你严肃,其实你只是认真。你心里有一套标准,这套标准给你安全感,但也让你有时候放不下。你不是不想变通,只是你需要先确认,这个变通不会破坏什么重要的东西。",
+        "traits": [
+          "对规则和秩序有天然的依赖",
+          "做事认真,不喜欢敷衍了事",
+          "看不惯不守规矩的人",
+          "需要明确的边界才能放松",
+          "执着于正确,有时会显得固执"
+        ],
+        "day_stem_element": "木"
+      },
+      "水": {
+        "year_pillar": "己亥",
+        "month_pillar": "癸酉",
+        "day_pillar": "壬子",
+        "hour_pillar": "乙卯",
+        "archetype_title": "檐下细雨 × 掌竹觅流者",
+        "shareable_tagline": "话不多,把很多事都收在心里",
+        "personality_summary": "你不是那种会主动说很多话的人。不是不想说,而是你习惯先看、先听、先感受,等你真的理解了,才会开口。你对情绪很敏感,能感觉到别人的不对劲,但你不会直接问,你会用自己的方式去理解。你心里有很多想法,但你不会全说出来,因为你觉得有些东西说出来就变了。你不是冷漠,你只是需要时间去消化,去确认自己的感觉。所以很多人觉得你神秘,其实你只是慢热。",
+        "traits": [
+          "习惯观察多于表达",
+          "对情绪的感知力很强",
+          "不轻易吐露内心想法",
+          "需要时间去消化和确认感受",
+          "看起来疏离,其实是慢热",
+          "不喜欢被追问内心感受"
+        ],
+        "day_stem_element": "水"
+      },
+      "火": {
+        "year_pillar": "丙午",
+        "month_pillar": "丁巳",
+        "day_pillar": "丙午",
+        "hour_pillar": "甲午",
+        "archetype_title": "赤霄烈阳 × 破晓燎浪者",
+        "shareable_tagline": "热得坦荡,也直得担荡",
+        "personality_summary": "你是那种一眼就能看出来的人。热情、直接、不藏着掖着。你喜欢就是喜欢,不喜欢也不会装,这让你看起来特别真实,但也让你有时候会得罪人。你不是故意的,你只是觉得,有什么好绕弯子的?但你也会因为这个吃亏,因为不是所有人都能接受这么直接的表达。你心里有一团火,这团火让你充满能量,但也让你容易急躁。你需要学会的是,有时候慢一点,不是妥协,而是给别人一点时间跟上你的节奏。",
+        "traits": [
+          "表达直接,不喜欢绕弯子",
+          "热情坦率,真实不做作",
+          "容易急躁,缺乏耐心",
+          "能量充沛,感染力强",
+          "有时会因为太直接而得罪人"
+        ],
+        "day_stem_element": "火"
+      },
+      "土": {
+        "year_pillar": "戊辰",
+        "month_pillar": "己未",
+        "day_pillar": "己丑",
+        "hour_pillar": "戊戌",
+        "archetype_title": "厚土承载 × 沉石守望者",
+        "shareable_tagline": "可靠得让人忘记,你也需要被照顾",
+        "personality_summary": "你是那种被需要的时候,总会在的人。朋友有事找你,你二话不说就去帮;家里有事,你也是第一个站出来的。你习惯承担,习惯付出,习惯让别人依靠你。但很少有人问你,你累不累。你也不会说,因为你觉得这是你应该做的。你的问题在于,你把自己放得太后面了。你总觉得,自己的事可以等,别人的事更重要。但其实,你也需要被看见,被关心,被照顾。你不是不需要,你只是不会说。",
+        "traits": [
+          "习惯承担和付出",
+          "可靠得让人依赖",
+          "很少表达自己的需求",
+          "把别人的事看得比自己重要",
+          "不会拒绝,容易被透支",
+          "需要被看见和关心,但不会主动说"
+        ],
+        "day_stem_element": "土"
+      }
+    };
+
+    let currentElement = "金";
+
+    // 渲染数据
+    function renderData(element) {
+      const data = mockData[element];
+      const [base, mod] = data.archetype_title.split(" × ");
+
+      document.getElementById("titleBase").textContent = base;
+      document.getElementById("titleMod").textContent = mod;
+      document.getElementById("tagline").textContent = data.shareable_tagline;
+
+      document.getElementById("yearStem").textContent = data.year_pillar[0];
+      document.getElementById("yearBranch").textContent = data.year_pillar[1];
+      document.getElementById("monthStem").textContent = data.month_pillar[0];
+      document.getElementById("monthBranch").textContent = data.month_pillar[1];
+      document.getElementById("dayStem").textContent = data.day_pillar[0];
+      document.getElementById("dayBranch").textContent = data.day_pillar[1];
+      document.getElementById("hourStem").textContent = data.hour_pillar[0];
+      document.getElementById("hourBranch").textContent = data.hour_pillar[1];
+
+      document.documentElement.setAttribute("data-element", element);
+      currentElement = element;
+
+      // 计算并绘制五行分布图
+      const distribution = calculateElementDistribution(data);
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      drawElementChart(distribution, accentColor, data.day_stem_element);
+
+      // 渲染Profile和Traits区块
+      renderProfile(data.personality_summary);
+      renderTraits(data.traits);
+
+      // 更新切换条状态
+      document.querySelectorAll(".dev-switcher button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.element === element);
+      });
+    }
+
+    // 检查是否显示开发切换条
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("dev") === "1") {
+      document.getElementById("devSwitcher").classList.add("visible");
+    }
+
+    // 切换五行
+    document.querySelectorAll(".dev-switcher button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        renderData(btn.dataset.element);
+      });
+    });
+
+    // 初始化
+    renderData(currentElement);
+  </script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>八字人格档案</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* 默认金 */
+      --bg: #14171a;
+      --panel: #1b1f23;
+      --accent: #c9d1d6;
+      --text: #e8ecef;
+    }
+
+    :root[data-element="金"] {
+      --bg: #14171a;
+      --panel: #1b1f23;
+      --accent: #c9d1d6;
+      --text: #e8ecef;
+    }
+
+    :root[data-element="木"] {
+      --bg: #0f1a15;
+      --panel: #15231c;
+      --accent: #6fbf8f;
+      --text: #e6efe9;
+    }
+
+    :root[data-element="水"] {
+      --bg: #0e1722;
+      --panel: #142030;
+      --accent: #5aa0e0;
+      --text: #e6edf5;
+    }
+
+    :root[data-element="火"] {
+      --bg: #1c1110;
+      --panel: #271817;
+      --accent: #ff6a4d;
+      --text: #f5e9e6;
+    }
+
+    :root[data-element="土"] {
+      --bg: #1a150e;
+      --panel: #251e14;
+      --accent: #d6a24e;
+      --text: #f3ece0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      transition: background 400ms;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* 顶栏 */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 0ms forwards;
+    }
+
+    .top-bar-left {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      opacity: 0.6;
+    }
+
+    .top-bar-right {
+      color: var(--accent);
+      letter-spacing: 0.15em;
+    }
+
+    /* 主视觉区 */
+    .hero {
+      position: relative;
+      padding: 60px 0 40px;
+      overflow: hidden;
+    }
+
+    /* 水印字 */
+    .watermark {
+      position: absolute;
+      top: -20px;
+      right: -10%;
+      font-family: "Noto Serif SC", serif;
+      font-size: 70vw;
+      font-weight: 900;
+      color: var(--accent);
+      opacity: 0.06;
+      line-height: 1;
+      pointer-events: none;
+      z-index: 0;
+      transition: color 400ms, opacity 400ms;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    /* 五行徽章 */
+    .badge {
+      width: 72px;
+      height: 72px;
+      background: var(--accent);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font: 900 40px/1 "Noto Serif SC", serif;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+      flex-shrink: 0;
+      transition: background 400ms, color 400ms;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 400ms forwards;
+    }
+
+    /* 称号区 */
+    .title-section {
+      flex: 1;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 80ms forwards;
+    }
+
+    .title-base {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 900;
+      font-size: clamp(36px, 10vw, 56px);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .title-mod-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .title-mod-line {
+      width: 32px;
+      height: 3px;
+      background: var(--accent);
+      transition: background 400ms;
+    }
+
+    .title-mod-symbol {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 20px;
+      color: var(--accent);
+      opacity: 0.6;
+      transition: color 400ms;
+    }
+
+    .title-mod {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 900;
+      font-size: clamp(20px, 5vw, 28px);
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .tagline {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .tagline-line {
+      width: 3px;
+      height: 48px;
+      background: var(--accent);
+      flex-shrink: 0;
+      transition: background 400ms;
+    }
+
+    .tagline-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      opacity: 0.85;
+      padding-top: 2px;
+    }
+
+    /* 四柱数据栏 */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 48px;
+      opacity: 0;
+      animation: fadeInUp 600ms ease-out 160ms forwards;
+    }
+
+    .pillar {
+      background: var(--panel);
+      padding: 20px 12px;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition: background 400ms;
+    }
+
+    .pillar.highlight {
+      background: var(--accent);
+      transition: background 400ms;
+    }
+
+    .pillar-label {
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 11px;
+      opacity: 0.6;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .pillar.highlight .pillar-label {
+      color: var(--bg);
+      opacity: 0.8;
+    }
+
+    .pillar-label-en {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .pillar.highlight .pillar-label-en {
+      color: var(--bg);
+      opacity: 0.6;
+    }
+
+    .pillar-chars {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pillar-char {
+      font-family: "Noto Serif SC", serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .pillar.highlight .pillar-char {
+      color: var(--bg);
+    }
+
+    /* 开发切换条 */
+    .dev-switcher {
+      display: none;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      gap: 12px;
+      font-family: "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      z-index: 100;
+    }
+
+    .dev-switcher.visible {
+      display: flex;
+    }
+
+    .dev-switcher button {
+      background: none;
+      border: none;
+      color: var(--text);
+      opacity: 0.3;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: inherit;
+      transition: opacity 200ms;
+    }
+
+    .dev-switcher button:hover {
+      opacity: 0.6;
+    }
+
+    .dev-switcher button.active {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    /* 动效 */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 480px) {
+      .hero-content {
+        flex-direction: column;
+      }
+
+      .badge {
+        order: -1;
+      }
+
+      .pillars {
+        gap: 8px;
+      }
+
+      .pillar {
+        padding: 16px 8px;
+      }
+
+      .pillar-char {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 开发切换条 -->
+  <div class="dev-switcher" id="devSwitcher">
+    <button data-element="金">金</button>
+    <button data-element="木">木</button>
+    <button data-element="水">水</button>
+    <button data-element="火">火</button>
+    <button data-element="土">土</button>
+  </div>
+
+  <!-- 顶栏 -->
+  <div class="top-bar">
+    <div class="top-bar-left">八字人格档案</div>
+    <div class="top-bar-right" id="topBarNumber">NO. 2006·07·21·07</div>
+  </div>
+
+  <!-- 主视觉区 -->
+  <div class="container">
+    <div class="hero">
+      <!-- 水印字 -->
+      <div class="watermark" id="watermark">金</div>
+
+      <div class="hero-content">
+        <!-- 五行徽章 -->
+        <div class="badge" id="badge">金</div>
+
+        <!-- 称号区 -->
+        <div class="title-section">
+          <div class="title-base" id="titleBase">掌心藏玉</div>
+          <div class="title-mod-wrapper">
+            <div class="title-mod-line"></div>
+            <div class="title-mod-symbol">×</div>
+            <div class="title-mod" id="titleMod">游川拾贝人</div>
+          </div>
+          <div class="tagline">
+            <div class="tagline-line"></div>
+            <div class="tagline-text" id="tagline">看着温和，其实心里有把尺</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 四柱数据栏 -->
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-label">年柱</div>
+        <div class="pillar-label-en">YEAR</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="yearStem">丙</div>
+          <div class="pillar-char" id="yearBranch">戌</div>
+        </div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-label">月柱</div>
+        <div class="pillar-label-en">MONTH</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="monthStem">乙</div>
+          <div class="pillar-char" id="monthBranch">未</div>
+        </div>
+      </div>
+
+      <div class="pillar highlight">
+        <div class="pillar-label">日柱</div>
+        <div class="pillar-label-en">DAY</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="dayStem">辛</div>
+          <div class="pillar-char" id="dayBranch">亥</div>
+        </div>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-label">时柱</div>
+        <div class="pillar-label-en">HOUR</div>
+        <div class="pillar-chars">
+          <div class="pillar-char" id="hourStem">壬</div>
+          <div class="pillar-char" id="hourBranch">辰</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock 数据
+    const mockData = {
+      "金": {
+        "year_pillar": "丙戌",
+        "month_pillar": "乙未",
+        "day_pillar": "辛亥",
+        "hour_pillar": "壬辰",
+        "archetype_title": "掌心藏玉 × 游川拾贝人",
+        "shareable_tagline": "看着温和，其实心里有把尺",
+        "day_stem_element": "金"
+      },
+      "木": {
+        "year_pillar": "甲寅",
+        "month_pillar": "丙寅",
+        "day_pillar": "乙卯",
+        "hour_pillar": "戊寅",
+        "archetype_title": "拔地苍木 × 扎竹守则者",
+        "shareable_tagline": "规矩之内，才觉得安全",
+        "day_stem_element": "木"
+      },
+      "水": {
+        "year_pillar": "己亥",
+        "month_pillar": "癸酉",
+        "day_pillar": "壬子",
+        "hour_pillar": "乙卯",
+        "archetype_title": "檐下细雨 × 掌竹觅流者",
+        "shareable_tagline": "话不多，把很多事都收在心里",
+        "day_stem_element": "水"
+      },
+      "火": {
+        "year_pillar": "丙午",
+        "month_pillar": "丙午",
+        "day_pillar": "丙寅",
+        "hour_pillar": "甲午",
+        "archetype_title": "赤霄烈阳 × 破晓燎浪者",
+        "shareable_tagline": "热得坦荡，也直得担荡",
+        "day_stem_element": "火"
+      },
+      "土": {
+        "year_pillar": "戊辰",
+        "month_pillar": "戊寅",
+        "day_pillar": "己未",
+        "hour_pillar": "丙寅",
+        "archetype_title": "掌心藏玉 × 游川拾贝人",
+        "shareable_tagline": "看着温和，其实心里有把尺",
+        "day_stem_element": "土"
+      }
+    };
+
+    let currentElement = "金";
+
+    // 渲染数据
+    function renderData(element) {
+      const data = mockData[element];
+      const [base, mod] = data.archetype_title.split(" × ");
+
+      document.getElementById("titleBase").textContent = base;
+      document.getElementById("titleMod").textContent = mod;
+      document.getElementById("tagline").textContent = data.shareable_tagline;
+      document.getElementById("watermark").textContent = element;
+      document.getElementById("badge").textContent = element;
+
+      document.getElementById("yearStem").textContent = data.year_pillar[0];
+      document.getElementById("yearBranch").textContent = data.year_pillar[1];
+      document.getElementById("monthStem").textContent = data.month_pillar[0];
+      document.getElementById("monthBranch").textContent = data.month_pillar[1];
+      document.getElementById("dayStem").textContent = data.day_pillar[0];
+      document.getElementById("dayBranch").textContent = data.day_pillar[1];
+      document.getElementById("hourStem").textContent = data.hour_pillar[0];
+      document.getElementById("hourBranch").textContent = data.hour_pillar[1];
+
+      document.documentElement.setAttribute("data-element", element);
+      currentElement = element;
+
+      // 更新切换条状态
+      document.querySelectorAll(".dev-switcher button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.element === element);
+      });
+    }
+
+    // 检查是否显示开发切换条
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("dev") === "1") {
+      document.getElementById("devSwitcher").classList.add("visible");
+    }
+
+    // 切换五行
+    document.querySelectorAll(".dev-switcher button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        renderData(btn.dataset.element);
+      });
+    });
+
+    // 初始化
+    renderData(currentElement);
+  </script>
+</body>
+</html>
